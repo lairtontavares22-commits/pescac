@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#075985">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<title>Pesca Certa</title>
+<style>
+:root{--blue:#075985;--deep:#083344;--sea:#e0f2fe;--bg:#f3f7fa;--ink:#102a43;--muted:#627d98;--line:#d9e4ec;--green:#15803d;--yellow:#a16207;--red:#b91c1c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}
+header{background:linear-gradient(145deg,#075985,#0e7490);color:white;padding:24px 18px 28px;border-radius:0 0 26px 26px}
+.top{display:flex;justify-content:space-between;align-items:center;max-width:680px;margin:auto}.brand{font-weight:800;font-size:1.35rem;letter-spacing:.2px}.tag{font-size:.8rem;opacity:.9;margin-top:3px}
+main{max-width:680px;margin:-10px auto 30px;padding:0 14px}.location{background:white;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 5px 18px #0b35520c}
+label{display:block;font-size:.82rem;font-weight:700;margin-bottom:7px}.locrow{display:flex;gap:8px;align-items:stretch}input{min-width:0;flex:1;padding:12px;border:1px solid #bdcbd6;border-radius:10px;font-size:1rem;color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:4px solid #f59e0b;outline-offset:2px}.voice{background:#15803d;min-width:58px;font-size:1.3rem}.easybar{display:flex;gap:8px;margin-top:10px}.easybar button{flex:1;min-height:52px}.readbtn{background:#075985}.access-on{font-size:1.18rem}.access-on .metric .label,.access-on .metric .sub,.access-on .note,.access-on .status p{font-size:1rem}.access-on .metric .value{font-size:1.6rem}.access-on button{font-size:1rem;min-height:52px}.access-on .statusicon{width:62px;height:62px;font-size:2rem}.indicator{display:flex;align-items:center;gap:12px;background:white;border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:10px;font-weight:800}.indicator .bigicon{font-size:2rem;min-width:42px;text-align:center}.indicator.good{border-color:#15803d;background:#f0fdf4}.indicator.caution{border-color:#ca8a04;background:#fffbeb}.indicator.danger{border-color:#b91c1c;background:#fef2f2}.indicator small{display:block;font-weight:500;font-size:.8rem;margin-top:3px}
+button{border:0;border-radius:10px;background:var(--blue);color:white;font-weight:700;padding:11px 13px;font-size:.9rem;cursor:pointer}button.secondary{background:#e0f2fe;color:#075985}button:disabled{opacity:.6}
+.note{font-size:.76rem;color:var(--muted);line-height:1.45;margin:9px 1px 0}
+h2{font-size:1.08rem;margin:22px 2px 11px}.status{background:white;border:1px solid var(--line);border-radius:16px;padding:17px;margin-top:13px}
+.statusline{display:flex;align-items:center;gap:12px}.statusicon{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:#fef3c7;font-size:1.6rem}.status h2{margin:0 0 4px;font-size:1.1rem}.status p{margin:0;color:var(--muted);font-size:.88rem;line-height:1.45}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric{background:white;border:1px solid var(--line);border-radius:15px;padding:14px;min-height:112px}.metric .icon{font-size:1.35rem}.metric .label{font-size:.82rem;color:var(--muted);margin-top:6px}.metric .value{font-size:1.32rem;font-weight:800;margin-top:2px}.metric .sub{font-size:.76rem;color:var(--muted);margin-top:3px}
+.hourly{display:flex;gap:9px;overflow:auto;padding-bottom:4px}.hour{min-width:100px;background:white;border:1px solid var(--line);border-radius:13px;padding:12px;text-align:center}.hour strong{display:block;font-size:.95rem}.hour span{display:block;font-size:.82rem;color:var(--muted);margin-top:5px}
+.footer{font-size:.76rem;color:var(--muted);line-height:1.5;padding:16px 3px 26px}.error{color:var(--red);font-size:.85rem;margin-top:9px}.pill{display:inline-block;border-radius:99px;background:#e0f2fe;color:#075985;padding:4px 9px;font-size:.72rem;font-weight:700;margin-top:7px}
+@media(min-width:560px){header{padding-top:30px}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.metric{padding:12px}.metric .value{font-size:1.18rem}}
+
+.mapbox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;margin-top:10px}.maphead{display:flex;justify-content:space-between;gap:10px;align-items:center}.maphead h2{margin:4px 0 10px}.mapactions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}.mapactions button{flex:1;min-width:130px;min-height:48px}.map{height:300px;border-radius:12px;overflow:hidden;background:#dbeafe;z-index:1}.mapnote{font-size:.8rem;color:var(--muted);line-height:1.4;margin:9px 2px 0}.official{background:#fff7ed;border:2px solid #c2410c;border-radius:15px;padding:14px;margin-top:14px}.official h2{margin:0 0 8px;color:#9a3412}.official p{font-size:.9rem;line-height:1.45;margin:6px 0 12px}.official button{background:#9a3412;width:100%;min-height:50px}.tapread{cursor:pointer;position:relative}.tapread:focus-visible{outline:4px solid #f59e0b;outline-offset:2px}.tapread::after{content:' 🔊';font-size:.8rem;color:#075985}.access-on .map{height:350px}.wind-arrow-icon{background:transparent;border:0}.wind-arrow-icon div{animation:windPulse 1.5s ease-in-out infinite;transform-origin:center}@keyframes windPulse{0%,100%{opacity:.7;filter:drop-shadow(0 0 1px #fff)}50%{opacity:1;filter:drop-shadow(0 0 7px #38bdf8)}}.diary{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:16px}.diary .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.diary input,.diary select{width:100%;min-width:0;padding:11px;border:1px solid #bdcbd6;border-radius:10px;font-size:1rem}.diary .wide{grid-column:1/-1}.entry{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:9px;background:#f8fbfd}.entry button{background:#b91c1c;padding:7px 9px}.quickvoice{display:flex;gap:8px;margin-top:10px}.quickvoice input{flex:1;min-width:0;padding:11px;border:1px solid #bdcbd6;border-radius:10px}.alertlist{padding:12px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;margin-top:12px;line-height:1.5}.alertlist.good{background:#f0fdf4;border-color:#bbf7d0}.windlegend{font-size:.82rem;padding:8px;background:#eff6ff;border-radius:8px;margin-top:8px}
+</style>
+</head>
+<body>
+<header><div class="top"><div><div class="brand">🎣 Pesca Certa</div><div class="tag">Condições do tempo para planejar sua pescaria</div></div><div style="font-size:1.8rem">🌊</div></div></header>
+<main>
+<section class="location">
+<label for="place">Local da pescaria</label>
+<div class="locrow"><input id="place" value="Caiçara do Norte, RN" aria-label="Local da pescaria"><button id="search">Consultar</button><button class="voice" id="mic" aria-label="Falar o nome da cidade" title="Falar o nome da cidade">🎙️</button></div>
+<div class="easybar"><button class="secondary" id="gps">📍 Usar minha localização</button><button class="secondary" id="easyMode" aria-pressed="false">🔎 Modo fácil: desligado</button></div>
+<div class="easybar"><button class="readbtn" id="readForecast">🔊 Ouvir a previsão</button><button id="askVoice" class="secondary">🗣️ Perguntar por voz</button></div><div class="quickvoice"><input id="voiceQuestion" placeholder="Ex.: como está o vento?" aria-label="Pergunte sobre a previsão"><button id="askTyped">Perguntar</button></div>
+<p class="note">Toque no microfone e diga o nome da cidade. O modo fácil aumenta letras e botões e mostra os avisos com símbolos e palavras.</p>
+<div id="message" class="error" role="status"></div>
+</section>
+<section class="status" aria-live="polite">
+<div class="statusline"><div class="statusicon" id="statusIcon">⏳</div><div><h2 id="statusTitle">Consultando condições…</h2><p id="statusText">Buscando previsão para o local selecionado.</p><span class="pill" id="updated">Carregando dados</span></div></div>
+</section>
+<section aria-label="Resumo visual para leitura fácil">
+<div class="indicator" id="visualWind"><span class="bigicon">🌬️</span><div>VENTO <small id="visualWindText">Aguardando dados</small></div></div>
+<div class="indicator" id="visualSea"><span class="bigicon">🌊</span><div>MAR <small id="visualSeaText">Aguardando dados</small></div></div>
+<div class="indicator" id="visualOverall"><span class="bigicon">⏳</span><div id="visualOverallTitle">PESCARIA <small id="visualOverallText">Consultando condições</small></div></div>
+</section>
+<h2>Condições agora</h2>
+<section class="grid">
+<div class="metric"><div class="icon">🌬️</div><div class="label">Vento</div><div class="value" id="wind">—</div><div class="sub" id="windDir">Velocidade média</div></div>
+<div class="metric"><div class="icon">🌡️</div><div class="label">Temperatura</div><div class="value" id="temp">—</div><div class="sub" id="feels">Ar</div></div>
+<div class="metric"><div class="icon">💨</div><div class="label">Rajadas</div><div class="value" id="gust">—</div><div class="sub">Vento mais forte</div></div>
+<div class="metric"><div class="icon">🌊</div><div class="label">Altura das ondas</div><div class="value" id="waves">—</div><div class="sub" id="wavePeriod">Dados do mar</div></div>
+</section>
+<section class="mapbox" aria-label="Mapa da localização e direção do vento">
+<div class="maphead"><h2>📍 Mapa e direção do vento</h2><button class="secondary" id="centerMap">Centralizar</button></div>
+<div class="mapactions"><button id="downloadMap">⬇️ Baixar mapa para usar offline</button><button class="secondary" id="offlineHelp">ℹ️ Como usar offline</button></div>
+<div id="map" class="map" role="application" aria-label="Mapa interativo da localização consultada"></div>
+<p class="mapnote">A seta mostra para onde o vento sopra. A previsão meteorológica informa de onde ele vem; a seta aponta no sentido oposto. O ponto marca o local consultado, não a posição exata do barco. Baixe um mapa esquemático com a direção e os dados atuais para consultar sem internet.</p>
+<div id="offlineMessage" class="note" role="status"></div>
+</section>
+<section class="official" aria-label="Avisos oficiais da Marinha">
+<h2>⚠️ Avisos oficiais da Marinha</h2>
+<p id="officialSummary">Consulte os avisos de mau tempo do Centro de Hidrografia da Marinha antes de sair. Os avisos oficiais podem abranger áreas marítimas distantes da sua cidade.</p><div id="alertSummary" class="alertlist">🔔 Os avisos oficiais precisam ser conferidos no site da Marinha; este protótipo não os verifica automaticamente.</div>
+<button id="officialBtn">⚓ Abrir avisos oficiais de mau tempo</button>
+<p class="note">Este botão abre a página oficial da Marinha. Os avisos não são copiados nem verificados automaticamente dentro deste protótipo; confira a área e o período de validade no site oficial.</p>
+</section>
+<h2>Próximas horas</h2><section class="hourly" id="hours"><div class="hour">Carregando previsão…</div></section>
+<section class="diary" aria-label="Diário de pesca"><h2 style="margin-top:0">🐟 Diário de pesca</h2><p class="note">Registre suas capturas. Os registros ficam salvos neste navegador neste aparelho.</p><form id="diaryForm" class="formgrid"><div><label for="catchDate">Data</label><input id="catchDate" type="date" required></div><div><label for="fishType">Espécie</label><input id="fishType" placeholder="Ex.: peixe-voador" required autocomplete="off"><div id="fishImagePreview" class="note" aria-live="polite" style="margin-top:8px"></div></div><div><label for="fishCount">Quantidade (peixes)</label><input id="fishCount" type="number" min="1" step="1" required></div><div><label for="fishWeight">Peso total (kg, opcional)</label><input id="fishWeight" type="number" min="0" step="0.1"></div><div class="wide"><label for="catchNotes">Observações (opcional)</label><input id="catchNotes" placeholder="Ex.: local, tipo de rede, condições do mar"></div><button class="wide" type="submit">💾 Salvar captura</button></form><div id="diaryEntries"></div><button id="exportDiary" class="secondary" style="width:100%;margin-top:10px">⬇️ Exportar diário</button></section>
+<p class="footer"><strong>Importante:</strong> esta avaliação é apenas uma ajuda para planejamento, não uma garantia de que haverá peixe nem uma autorização para sair ao mar. Verifique os avisos oficiais, a previsão marítima, os equipamentos de segurança e as condições reais no local. “Favorável” não significa necessariamente seguro.</p>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+const $=id=>document.getElementById(id);
+let lastSummary='';
+let coords={lat:-5.0667,lon:-36.0667};
+let map=null, marker=null, windArrow=null, windFlow=null, currentWindDeg=null, currentWindSpeed=null, currentGust=null, currentTemp=null, currentWaves=null;
+function compass(deg){if(deg==null)return 'Direção indisponível';return ['N','NE','L','SE','S','SO','O','NO'][Math.round(deg/45)%8]}
+function fmt(v,d=0){return v==null?'—':Number(v).toFixed(d)}
+function initMap(){
+ if(!window.L){$('map').innerHTML='<p style="padding:16px">O mapa precisa de internet para carregar. Use o botão de centralizar depois que a conexão voltar.</p>';return}
+ map=L.map('map').setView([coords.lat,coords.lon],9);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
+ marker=L.marker([coords.lat,coords.lon]).addTo(map).bindPopup('Local da previsão');
+ updateMap();
+}
+function updateMap(){
+ if(!map||!window.L)return;
+ const pt=[coords.lat,coords.lon];map.setView(pt,Math.max(map.getZoom(),8));
+ if(marker)marker.setLatLng(pt);else marker=L.marker(pt).addTo(map);
+ if(windArrow)map.removeLayer(windArrow);if(windFlow)map.removeLayer(windFlow);
+ if(currentWindDeg!=null){
+  const rad=((currentWindDeg+180)%360)*Math.PI/180;const dx=Math.sin(rad)*0.06,dy=Math.cos(rad)*0.06;
+  const lines=[];for(let k=1;k<=5;k++){const x=coords.lon+(k-3)*0.025,y=coords.lat+(k-3)*0.018;lines.push([[y-dy,x-dx],[y,x],[y+dy,x+dx]])}windFlow=L.layerGroup(lines.map(ll=>L.polyline(ll,{color:'#0284c7',weight:3,opacity:.65,dashArray:'8 8',className:'wind-flow'}))).addTo(map);
+  
+  const arrow=`<div style="font-size:34px;font-weight:900;color:#075985;text-shadow:0 0 3px white;transform:rotate(${(currentWindDeg+180)%360}deg);line-height:1">↑</div>`;
+  windArrow=L.marker(pt,{icon:L.divIcon({className:'wind-arrow-icon',html:arrow,iconSize:[36,36],iconAnchor:[18,18]})}).addTo(map).bindPopup('O vento sopra para: '+compass((currentWindDeg+180)%360)+' (a previsão informa de onde vem)');
+ }
+ setTimeout(()=>map.invalidateSize(),100);
+}
+async function loadWeather(){
+ $('message').textContent='';$('search').disabled=true;$('statusTitle').textContent='Consultando condições…';$('statusText').textContent='Buscando os dados mais recentes disponíveis.';
+ try{
+  const wurl=`https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,wind_speed_10m,precipitation_probability&forecast_days=1&timezone=auto`;
+  const murl=`https://marine-api.open-meteo.com/v1/marine?latitude=${coords.lat}&longitude=${coords.lon}&current=wave_height,wave_period&hourly=wave_height,wave_period&forecast_days=1&timezone=auto`;
+  const [wr,mr]=await Promise.allSettled([fetch(wurl),fetch(murl)]);
+  if(wr.status!=='fulfilled'||!wr.value.ok)throw Error('Não foi possível consultar a previsão do tempo. Verifique sua conexão e tente novamente.');
+  const data=await wr.value.json(), c=data.current||{};
+  let marine=null;if(mr.status==='fulfilled'&&mr.value.ok){try{marine=await mr.value.json()}catch(e){}}
+  $('wind').textContent=fmt(c.wind_speed_10m)+' km/h';$('windDir').textContent='Vem de '+compass(c.wind_direction_10m);currentWindDeg=c.wind_direction_10m;currentWindSpeed=c.wind_speed_10m;currentGust=c.wind_gusts_10m;currentTemp=c.temperature_2m;updateMap();
+  $('temp').textContent=fmt(c.temperature_2m,1)+' °C';$('feels').textContent='Sensação '+fmt(c.apparent_temperature,1)+' °C';
+  $('gust').textContent=fmt(c.wind_gusts_10m)+' km/h';
+  const mc=marine?.current||{};currentWaves=mc.wave_height;$('waves').textContent=mc.wave_height==null?'Indisponível':fmt(mc.wave_height,1)+' m';
+  $('wavePeriod').textContent=mc.wave_period==null?'Sem dado de período':'Período '+fmt(mc.wave_period,0)+' s';
+  const speed=Number(c.wind_speed_10m),gust=Number(c.wind_gusts_10m),wave=Number(mc.wave_height);
+  let overall='';
+  if(speed>=30||gust>=45||(Number.isFinite(wave)&&wave>=2.5)){
+   $('statusIcon').textContent='🛑';$('statusTitle').textContent='PERIGO: muita atenção';$('statusText').textContent='Vento forte, rajadas ou ondas altas. Não confie só neste aplicativo: consulte os avisos marítimos oficiais.';overall='PERIGO';
+   $('visualOverall').className='indicator danger';$('visualOverall').querySelector('.bigicon').textContent='🛑';
+  }else if(speed>=20||gust>=30||(Number.isFinite(wave)&&wave>=1.5)){
+   $('statusIcon').textContent='⚠️';$('statusTitle').textContent='CUIDADO: condições difíceis';$('statusText').textContent='O vento ou o mar podem mudar e aumentar o risco. Avalie com cuidado antes de sair.';overall='CUIDADO';
+   $('visualOverall').className='indicator caution';$('visualOverall').querySelector('.bigicon').textContent='⚠️';
+  }else{
+   $('statusIcon').textContent='✅';$('statusTitle').textContent='Condições aparentemente mais tranquilas';$('statusText').textContent='O vento não está muito forte nos dados consultados. Isso não garante segurança nem presença de peixe.';overall='MAIS TRANQUILO';
+   $('visualOverall').className='indicator good';$('visualOverall').querySelector('.bigicon').textContent='✅';
+  }
+  const windClass=speed>=30||gust>=45?'danger':(speed>=20||gust>=30?'caution':'good');
+  $('visualWind').className='indicator '+windClass;$('visualWindText').textContent=windClass==='danger'?'VENTO FORTE — risco maior':windClass==='caution'?'VENTO MODERADO — tenha cuidado':'VENTO FRACO — confira os outros avisos';
+  const seaClass=Number.isFinite(wave)?(wave>=2.5?'danger':wave>=1.5?'caution':'good'):'caution';
+  $('visualSea').className='indicator '+seaClass;$('visualSeaText').textContent=Number.isFinite(wave)?(wave>=2.5?'ONDAS ALTAS — risco maior':wave>=1.5?'ONDAS MODERADAS — tenha cuidado':'ONDAS BAIXAS nos dados consultados'):'ALTURA DAS ONDAS SEM DADO';
+  lastSummary=`Na cidade de ${$('place').value}. Vento de ${fmt(c.wind_speed_10m)} quilômetros por hora, temperatura de ${fmt(c.temperature_2m,1)} graus. ${$('visualWindText').textContent}. ${$('visualSeaText').textContent}. Resultado: ${overall}. Isso não garante segurança nem presença de peixe. Confira os avisos oficiais da Marinha.`;
+  $('visualOverallTitle').childNodes[0].textContent='PESCARIA: '+overall+' ';$('visualOverallText').textContent='Este é um resumo do tempo, não uma garantia de segurança.';
+  $('updated').textContent='Atualizado: '+new Date(c.time||Date.now()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});updateLocalAlert();try{localStorage.setItem('pescaCertaLastWeather',JSON.stringify({place:$('place').value,coords,wind:currentWindSpeed,windDeg:currentWindDeg,gust:currentGust,temp:currentTemp,waves:currentWaves,updated:new Date().toISOString(),summary:$('statusTitle').textContent+' '+$('statusText').textContent}))}catch(e){}
+  const h=data.hourly, now= c.time ? h.time.findIndex(t=>t>=c.time) : 0, start=Math.max(0,now);
+  $('hours').innerHTML='';
+  for(let i=start;i<Math.min(start+8,h.time.length);i++){
+   const card=document.createElement('div');card.className='hour';
+   const time=h.time[i].slice(11,16), temp=h.temperature_2m[i], wind=h.wind_speed_10m[i], rain=h.precipitation_probability?.[i];
+   card.innerHTML=`<strong>${time}</strong><span>🌡️ ${fmt(temp,0)} °C</span><span>🌬️ ${fmt(wind,0)} km/h</span><span>🌧️ ${rain==null?'—':rain+'%'}</span>`;
+   $('hours').appendChild(card)
+  }
+ }catch(e){let cached=null;try{cached=JSON.parse(localStorage.getItem('pescaCertaLastWeather')||'null')}catch(ignore){}if(cached){currentWindSpeed=cached.wind;currentWindDeg=cached.windDeg;currentGust=cached.gust;currentTemp=cached.temp;currentWaves=cached.waves;$('wind').textContent=fmt(cached.wind)+' km/h';$('windDir').textContent='Vem de '+compass(cached.windDeg);$('gust').textContent=fmt(cached.gust)+' km/h';$('temp').textContent=fmt(cached.temp,1)+' °C';$('waves').textContent=cached.waves==null?'Indisponível':fmt(cached.waves,1)+' m';$('statusIcon').textContent='📴';$('statusTitle').textContent='Sem internet: dados antigos';$('statusText').textContent=(cached.summary||'Última previsão salva')+' Os dados podem estar desatualizados; não use para decidir sozinho se é seguro sair.';$('updated').textContent='Última consulta: '+new Date(cached.updated).toLocaleString('pt-BR');$('message').textContent='Sem conexão. Mostrando a última previsão salva, que pode estar desatualizada.';updateMap()}else{$('message').textContent=e.message||'Erro ao carregar dados.';$('statusIcon').textContent='📡';$('statusTitle').textContent='Não foi possível atualizar';$('statusText').textContent='Confira a conexão e tente novamente. Os dados podem estar temporariamente indisponíveis.';$('updated').textContent='Sem atualização'}}
+ finally{$('search').disabled=false}
+}
+async function geocode(){
+ const q=$('place').value.trim();if(!q)return;
+ $('message').textContent='Procurando local…';
+ try{const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=1&language=pt&format=json');if(!r.ok)throw Error();const d=await r.json();if(!d.results?.length)throw Error('Local não encontrado. Tente informar cidade e estado.');
+ const p=d.results[0];coords={lat:p.latitude,lon:p.longitude};$('place').value=[p.name,p.admin1,p.country].filter(Boolean).join(', ');await loadWeather()
+ }catch(e){$('message').textContent=e.message||'Não foi possível encontrar o local.'}finally{$('search').disabled=false}
+}
+$('search').addEventListener('click',geocode);
+$('centerMap').addEventListener('click',()=>{if(map){map.setView([coords.lat,coords.lon],10);if(marker)marker.openPopup()}else $('message').textContent='O mapa ainda não carregou. Verifique a conexão.'});
+
+$('downloadMap').addEventListener('click',()=>{
+ const name=$('place').value||'Local consultado';
+ const deg=Number(currentWindDeg), speed=currentWindSpeed==null?'Sem dado':fmt(currentWindSpeed)+' km/h';
+ const toward=currentWindDeg==null?'Direção indisponível':compass((deg+180)%360);
+ const rotation=currentWindDeg==null?0:(deg+180)%360;
+ const lat=Number(coords.lat).toFixed(4),lon=Number(coords.lon).toFixed(4);
+ const safe=s=>String(s).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
+ const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700"><rect width="900" height="700" fill="#dff4fa"/><path d="M0 0H900V700H0Z" fill="#dff4fa"/><g stroke="#b4e0ed" stroke-width="2" opacity=".8">${Array.from({length:9},(_,i)=>`<path d="M${i*112} 0V700"/>`).join('')}${Array.from({length:7},(_,i)=>`<path d="M0 ${i*100}H900"/>`).join('')}</g><path d="M0 0H470 Q440 75 500 120 T465 240 Q420 280 465 340 T410 450 Q370 510 420 560 T390 700H0Z" fill="#d8e9c8" stroke="#8eb58c" stroke-width="5"/><text x="590" y="110" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" fill="#477b91">MAR / OCEANO</text><circle cx="565" cy="350" r="24" fill="#fff" stroke="#075985" stroke-width="8"/><circle cx="565" cy="350" r="7" fill="#075985"/><text x="600" y="360" font-family="Arial,sans-serif" font-size="25" font-weight="bold" fill="#083344">Local consultado</text><g transform="translate(735 205)"><circle r="65" fill="#fff" stroke="#075985" stroke-width="4"/><text x="0" y="-78" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" font-weight="bold" fill="#083344">N</text><g transform="rotate(${rotation})"><path d="M0 -45 L-18 -4 L0 -13 L18 -4Z" fill="#dc2626" stroke="#7f1d1d" stroke-width="2"/><path d="M0 -13 L-18 -4 L0 45 L18 -4Z" fill="#075985"/></g></g><rect x="25" y="535" width="850" height="140" rx="20" fill="#fff" stroke="#b7d7e5" stroke-width="3"/><text x="50" y="575" font-family="Arial,sans-serif" font-size="26" font-weight="bold" fill="#083344">DIREÇÃO DO VENTO</text><text x="50" y="615" font-family="Arial,sans-serif" font-size="25" fill="#075985">Soprando para: ${safe(toward)} • Velocidade: ${safe(speed)}</text><text x="50" y="650" font-family="Arial,sans-serif" font-size="18" fill="#334155">Coordenadas: ${lat}, ${lon} • Esquema ilustrativo, não usar para navegação</text></svg>`;
+ const html=`<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mapa offline - Pesca Certa</title><style>body{font-family:Arial,sans-serif;background:#f0f7fa;color:#123;padding:14px;margin:auto;max-width:900px}h1{font-size:1.5rem}img{width:100%;height:auto;border:1px solid #b7d7e5;border-radius:12px}p{line-height:1.5}</style><h1>🎣 Pesca Certa — Mapa para consulta offline</h1><p><b>Local:</b> ${safe(name)}<br><b>Vento:</b> ${safe(speed)}<br><b>Direção para onde sopra:</b> ${safe(toward)}<br><b>Rajadas:</b> ${currentGust==null?'Sem dado':fmt(currentGust)+' km/h'}<br><b>Temperatura:</b> ${currentTemp==null?'Sem dado':fmt(currentTemp,1)+' °C'}<br><b>Ondas:</b> ${currentWaves==null?'Sem dado':fmt(currentWaves,1)+' m'}<br><b>Coordenadas:</b> ${lat}, ${lon}</p><img alt="Mapa esquemático offline com seta de direção do vento" src="data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}"><p><b>Atenção:</b> este é um esquema ilustrativo, não um mapa náutico real e não serve para navegação. Os dados são uma fotografia do momento em que o arquivo foi baixado e não se atualizam sem internet. Consulte avisos oficiais da Marinha.</p></html>`;
+ const blob=new Blob([html],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='pesca-certa-mapa-offline.html';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+ $('offlineMessage').textContent='Mapa offline baixado. Abra o arquivo “pesca-certa-mapa-offline.html” no celular; ele funciona sem internet, mas é um esquema ilustrativo e os dados não se atualizam.';
+});
+$('offlineHelp').addEventListener('click',()=>speak('Para usar offline, toque em baixar mapa para usar offline. Depois, abra o arquivo salvo no celular. Ele mostra a direção do vento e os dados registrados no momento do download. Não é um mapa náutico real e não substitui avisos oficiais.'));
+
+$('officialBtn').addEventListener('click',()=>window.open('https://www.marinha.mil.br/chm/dados-do-smm-avisos-de-mau-tempo/avisos-de-mau-tempo','_blank','noopener,noreferrer'));
+function enableTapToRead(){document.querySelectorAll('.metric,.indicator,.hour,.status,.official,.mapnote').forEach(el=>{el.classList.add('tapread');el.setAttribute('tabindex','0');el.setAttribute('role','button');const read=()=>speak(el.innerText.replace(/🔊/g,'').replace(/\s+/g,' ').trim());el.addEventListener('click',e=>{if(e.target.closest('button,a'))return;read()});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();read()}})})}
+enableTapToRead();
+$('hours').addEventListener('click',e=>{const card=e.target.closest('.hour');if(card)speak(card.innerText.replace(/\s+/g,' ').trim())});
+$('hours').addEventListener('keydown',e=>{const card=e.target.closest('.hour');if(card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();speak(card.innerText.replace(/\s+/g,' ').trim())}});
+$('place').addEventListener('keydown',e=>{if(e.key==='Enter')geocode()});
+$('mic').addEventListener('click',()=>{
+ const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SpeechRecognition){$('message').textContent='O reconhecimento de voz não está disponível neste navegador. Você pode digitar o nome da cidade.';speak('O microfone não está disponível. Digite o nome da cidade.');return}
+ const rec=new SpeechRecognition();rec.lang='pt-BR';rec.interimResults=false;rec.maxAlternatives=1;
+ $('message').textContent='🎙️ Ouvindo… diga o nome da cidade.';$('mic').textContent='🔴';$('mic').disabled=true;
+ rec.onresult=e=>{const heard=e.results[0][0].transcript.trim();$('place').value=heard;$('message').textContent='Entendi: '+heard+'. Procurando previsão…';geocode()};
+ rec.onerror=()=>{$('message').textContent='Não consegui entender. Tente falar novamente ou digite a cidade.';};
+ rec.onend=()=>{$('mic').textContent='🎙️';$('mic').disabled=false};
+ try{rec.start()}catch(e){$('mic').disabled=false;$('mic').textContent='🎙️';$('message').textContent='Não foi possível iniciar o microfone. Tente novamente.'}
+});
+function speak(text){if(!('speechSynthesis' in window)){$('message').textContent='A leitura em voz alta não está disponível neste navegador.';return}window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=0.88;window.speechSynthesis.speak(u)}
+$('readForecast').addEventListener('click',()=>{if(lastSummary)speak(lastSummary);else speak('Ainda estou buscando a previsão. Aguarde um pouco e tente novamente.')});
+$('easyMode').addEventListener('click',()=>{const on=document.body.classList.toggle('access-on');$('easyMode').setAttribute('aria-pressed',String(on));$('easyMode').textContent=on?'🔎 Modo fácil: ligado':'🔎 Modo fácil: desligado';speak(on?'Modo fácil ligado. Letras e botões maiores. Os avisos aparecem com símbolos e palavras.':'Modo fácil desligado.')});
+$('gps').addEventListener('click',()=>{if(!navigator.geolocation){$('message').textContent='Seu navegador não permite acessar a localização.';return}
+ $('message').textContent='Obtendo localização…';navigator.geolocation.getCurrentPosition(async p=>{coords={lat:p.coords.latitude,lon:p.coords.longitude};$('place').value='Minha localização';await loadWeather()},()=>{$('message').textContent='Não foi possível acessar a localização. Confira a permissão do navegador.'},{enableHighAccuracy:false,timeout:10000})});
+// Perguntas simples por texto ou voz: respostas baseadas somente nos dados carregados.
+function answerQuestion(q){q=(q||'').toLowerCase();let ans='Posso informar vento, temperatura, rajadas e ondas. Tente perguntar: como está o vento?';if(q.includes('vento'))ans=`O vento está em ${$('wind').textContent}, vindo de ${$('windDir').textContent.replace('Vem de ','')}. A seta no mapa mostra para onde sopra. Rajadas: ${$('gust').textContent}.`;else if(q.includes('mar')||q.includes('onda'))ans=`A altura das ondas informada é ${$('waves').textContent}. ${$('wavePeriod').textContent}. Consulte também os avisos oficiais da Marinha.`;else if(q.includes('temperatura')||q.includes('calor'))ans=`A temperatura é ${$('temp').textContent}. ${$('feels').textContent}.`;else if(q.includes('pescar')||q.includes('sair'))ans=`O indicador atual é ${$('statusTitle').textContent}. ${$('statusText').textContent} Isso não é garantia de segurança. Confira os avisos oficiais da Marinha.`;else if(q.includes('aviso')||q.includes('marinha'))ans='Abra a seção Avisos oficiais da Marinha e confira a área marítima e a validade do aviso antes de sair.';lastSummary=ans;speak(ans)}
+$('askTyped').addEventListener('click',()=>answerQuestion($('voiceQuestion').value));$('voiceQuestion').addEventListener('keydown',e=>{if(e.key==='Enter')answerQuestion(e.target.value)});
+$('askVoice').addEventListener('click',()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){speak('Reconhecimento de voz indisponível. Digite sua pergunta na caixa de texto.');return}const r=new SR();r.lang='pt-BR';r.onresult=e=>{const q=e.results[0][0].transcript;$('voiceQuestion').value=q;answerQuestion(q)};r.onerror=()=>speak('Não consegui entender. Tente novamente ou digite sua pergunta.');r.start();speak('Pode perguntar sobre vento, mar, temperatura ou condições para pescar.')});
+// Avisos automáticos aqui são apenas alertas meteorológicos derivados da previsão, não avisos oficiais da Marinha.
+function updateLocalAlert(){const el=$('alertSummary');if(!el)return;const speed=Number(currentWindSpeed),gust=Number(currentGust),wave=Number(currentWaves);if(speed>=25||gust>=40||(Number.isFinite(wave)&&wave>=2)){el.className='alertlist';el.textContent='🛑 ATENÇÃO: os dados meteorológicos consultados indicam vento, rajadas ou ondas potencialmente difíceis. Consulte imediatamente os avisos oficiais da Marinha.'}else if(speed>=15||gust>=25||(Number.isFinite(wave)&&wave>=1)){el.className='alertlist';el.textContent='⚠️ CUIDADO: acompanhe a previsão e possíveis mudanças do vento e do mar. Confirme os avisos oficiais da Marinha.'}else{el.className='alertlist good';el.textContent='ℹ️ Não foi identificado um limite de atenção pelo resumo automático. Isso NÃO confirma segurança. Consulte os avisos oficiais da Marinha.'}}
+// Diário persistido no navegador. Não envia dados para nenhum servidor.
+const diaryKey='pescaCertaDiaryV1';$('catchDate').value=new Date().toISOString().slice(0,10);
+function getDiary(){try{return JSON.parse(localStorage.getItem(diaryKey)||'[]')}catch(e){return []}}
+let selectedFishImage='';
+let fishImageTimer=null, fishSearchToken=0;
+async function findFishImage(){
+ const name=$('fishType').value.trim(),box=$('fishImagePreview'),token=++fishSearchToken;
+ if(!name){box.innerHTML='';selectedFishImage='';return}
+ box.textContent='🔎 Procurando imagem de '+name+'…';selectedFishImage='';
+ try{
+  const isFlying=/peixe[ -]?voador|voador/i.test(name);
+  const terms=isFlying?['Exocoetus volitans','flying fish']: [name+' peixe',name];
+  let found=null,sourcePage='';
+  // Busca imagens diretamente no Wikimedia Commons; é mais confiável para nomes populares.
+  for(const term of terms){
+   const api='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent(term+' filetype:bitmap')+'&gsrnamespace=6&gsrlimit=10&prop=imageinfo&iiprop=url&iiurlwidth=600&format=json&origin=*';
+   const r=await fetch(api);if(!r.ok)continue;const data=await r.json();
+   const pages=Object.values(data.query?.pages||{});
+   found=pages.find(x=>x.imageinfo?.[0]?.thumburl||x.imageinfo?.[0]?.url);
+   if(found){sourcePage='https://commons.wikimedia.org/wiki/'+encodeURIComponent(found.title.replaceAll(' ','_'));break}
+  }
+  if(token!==fishSearchToken)return;
+  if(!found)throw Error('sem imagem');
+  selectedFishImage=found.imageinfo[0].thumburl||found.imageinfo[0].url;box.innerHTML='';
+  const img=document.createElement('img');img.src=selectedFishImage;img.alt='Imagem de referência: '+name;img.loading='lazy';img.style='display:block;width:100%;max-width:280px;max-height:220px;object-fit:contain;border-radius:12px;margin:8px 0';
+  img.onerror=()=>{if(token===fishSearchToken){box.textContent='A imagem não carregou. Verifique a conexão com a internet.';selectedFishImage=''}};
+  const cap=document.createElement('p');cap.className='note';cap.textContent='Imagem de referência: '+(found.title||name).replace(/^File:/,'')+'. Confirme se corresponde ao peixe capturado.';
+  const link=document.createElement('a');link.href=sourcePage;link.target='_blank';link.rel='noopener';link.textContent='Fonte e detalhes da imagem';box.append(img,cap,link);
+ }catch(e){if(token===fishSearchToken)box.textContent='Não encontrei imagem para “'+name+'”. Confira a escrita e a conexão com a internet.'}
+}
+$('fishType').addEventListener('input',()=>{clearTimeout(fishImageTimer);fishSearchToken++;selectedFishImage='';const name=$('fishType').value.trim();if(!name){$('fishImagePreview').innerHTML='';return}$('fishImagePreview').textContent='A imagem aparecerá automaticamente…';fishImageTimer=setTimeout(findFishImage,650)});
+function renderDiary(){const host=$('diaryEntries');if(!host)return;const entries=getDiary();host.innerHTML='';if(!entries.length){host.innerHTML='<p class="note">Nenhuma captura registrada ainda.</p>';return}entries.slice().reverse().forEach((x,rev)=>{const real=entries.length-1-rev,div=document.createElement('div');div.className='entry';const strong=document.createElement('strong');strong.textContent=`${x.date} — ${x.species}`;div.append(strong);if(x.image){const img=document.createElement('img');img.src=x.image;img.alt='Imagem de referência de '+x.species;img.style='display:block;max-width:100%;max-height:180px;object-fit:contain;margin:8px 0;border-radius:10px';div.append(img)}const p=document.createElement('p');p.textContent=`Quantidade: ${x.count} peixe(s)${x.weight?` • Peso: ${x.weight} kg`:''}${x.notes?` • ${x.notes}`:''}`;const del=document.createElement('button');del.textContent='Excluir';del.type='button';del.addEventListener('click',()=>{const a=getDiary();a.splice(real,1);localStorage.setItem(diaryKey,JSON.stringify(a));renderDiary()});div.append(p,del);host.appendChild(div)})}
+$('diaryForm').addEventListener('submit',e=>{e.preventDefault();const entries=getDiary();entries.push({date:$('catchDate').value,species:$('fishType').value.trim(),count:Number($('fishCount').value),weight:$('fishWeight').value?Number($('fishWeight').value):null,notes:$('catchNotes').value.trim(),image:selectedFishImage||''});localStorage.setItem(diaryKey,JSON.stringify(entries));e.target.reset();$('catchDate').value=new Date().toISOString().slice(0,10);renderDiary();speak('Captura salva no diário de pesca.')});
+$('exportDiary').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(getDiary(),null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='diario-pesca-certa.json';a.click();URL.revokeObjectURL(url)});renderDiary();
+initMap();
+loadWeather();
+</script>
+</body></html>
